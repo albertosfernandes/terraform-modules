@@ -1,0 +1,80 @@
+name: Release Terraform Module
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - main
+
+jobs:
+  release:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Get latest release
+        id: latest_release
+        uses: actions/github-script@v7
+        with:
+          script: |
+            try {
+              const release = await github.rest.repos.getLatestRelease({
+                owner: context.repo.owner,
+                repo: context.repo.repo
+              })
+              return release.data.tag_name
+            } catch (e) {
+              return "v0.0.0"
+            }
+
+      - name: Determine version bump
+        id: bump
+        run: |
+          LABELS="${{ join(github.event.pull_request.labels.*.name, ' ') }}"
+          echo "Labels: $LABELS"
+
+          if [[ "$LABELS" == *"major"* ]]; then
+            echo "level=major" >> $GITHUB_OUTPUT
+          elif [[ "$LABELS" == *"minor"* ]]; then
+            echo "level=minor" >> $GITHUB_OUTPUT
+          else
+            echo "level=patch" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Calculate next version
+        id: version
+        run: |
+          CURRENT=${{ steps.latest_release.outputs.result }}
+          CURRENT=${CURRENT#v}
+
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT"
+
+          case "${{ steps.bump.outputs.level }}" in
+            major)
+              MAJOR=$((MAJOR+1))
+              MINOR=0
+              PATCH=0
+              ;;
+            minor)
+              MINOR=$((MINOR+1))
+              PATCH=0
+              ;;
+            patch)
+              PATCH=$((PATCH+1))
+              ;;
+          esac
+
+          echo "tag=v$MAJOR.$MINOR.$PATCH" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.tag }}
+          name: Release ${{ steps.version.outputs.tag }}
+          generate_release_notes: true
