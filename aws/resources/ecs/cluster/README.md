@@ -1,3 +1,6 @@
+# Cluster ECS Fargate
+Este módulo foi construído para auxiliar na construção de cluster ECS na AWS, uma vez que as principais configurações estão descritas no módulo e para utilizar é recomendável com uso de Terragrunt passando apenas as variáveis necessárias conforme abaixo.
+
 ## Exemplo de uso
 
 ```
