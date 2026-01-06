@@ -1,12 +1,12 @@
 output "cluster_id" {
-  value = module.ecs_cluster.cluster_id
+  value = module.ecs_cluster.id
 }
 
 output "cluster_name" {
-  value = module.ecs_cluster.cluster_name
+  value = module.ecs_cluster.name
 }
 
 output "cluster_arn" {
-  value = module.ecs_cluster.cluster_arn
+  value = module.ecs_cluster.arn
 }
 
