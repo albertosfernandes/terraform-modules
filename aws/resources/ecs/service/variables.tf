@@ -36,10 +36,6 @@ variable "security_groups" {
   type = list(string)
 }
 
-variable "target_group_arn" {
-  type = string
-}
-
 variable "assign_public_ip" {
   type    = bool
   default = false
