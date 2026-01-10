@@ -19,6 +19,8 @@ variable "service_name" {
 
 variable "task_definition_arn" {
   type        = string
+  description = "Initial task definition ARN (used only for service creation)"
+  default     = null
 }
 
 variable "desired_count" {
